@@ -1,3 +1,7 @@
 /* Initial reset */
 * { box-sizing: border-box; }
 body { margin: 0; }
+:root {
+  --bg: #fff;
+  --fg: #1a1a1a;
+}
