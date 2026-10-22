@@ -55,4 +55,19 @@ form {
     margin: 1rem 0;
 }
 
-time:not(table time)
+time:not(table time) {
+    color: var(--muted);
+}
+
+/* Links with parsiad.ca smooth underline gradient transition */
+#content a,
+footer a {
+    color: var(--link);
+    background-image: linear-gradient(var(--link), var(--link));
+    background-size: 0 2px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    text-decoration: none;
+    transition:
+        background-size 0.25s ease,
+        color 0.25
