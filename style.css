@@ -1,7 +1,23 @@
-/* Initial reset */
-* { box-sizing: border-box; }
-body { margin: 0; }
+/* Exact styles adapted from https://parsiad.ca/assets/main.css */
+
 :root {
-  --bg: #fff;
-  --fg: #1a1a1a;
+    --bg: #fff;
+    --code-bg: #eff1f5;
+    --fg: #1a1a1a;
+    --hover: #1a4a7a;
+    --link: #2b6cb0;
+    --maxw: 42rem;
+    --muted: #666;
+    --rule: #ddd;
 }
+
+html {
+    font-size: 18px;
+}
+
+body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "EB Garamond", serif;
+    line-height: 1.6;
+    margin: 0;
