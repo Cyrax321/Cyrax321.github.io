@@ -157,4 +157,92 @@ td.date {
 }
 
 #content ul ul {
-    margin: 0.25rem 0 0.5rem 0.5r
+    margin: 0.25rem 0 0.5rem 0.5rem;
+}
+
+/* Arrow symbol - only in paper area */
+
+ul.papers,
+#under-review + ul,
+#published + ul {
+    list-style: none;
+    margin: 1rem 0;
+    padding: 0;
+}
+
+ul.papers li,
+#under-review + ul li,
+#published + ul li {
+    line-height: 1.6;
+    margin: 0.5em 0;
+    padding-left: 1.5em;
+    position: relative;
+    transition: color 0.2s;
+}
+
+ul.papers li::before,
+#under-review + ul li::before,
+#published + ul li::before {
+    color: var(--muted);
+    content: "▹";
+    font-size: 1.2em;
+    left: 0;
+    line-height: 1.2;
+    position: absolute;
+}
+
+/* Footer */
+
+footer {
+    color: var(--muted);
+    font-size: 0.75rem;
+    padding-top: 1rem;
+    margin-top: 2rem;
+    border-top: 1px solid var(--rule);
+    text-align: right;
+}
+
+/* Nav */
+
+nav a {
+    color: var(--muted);
+    text-decoration: none;
+}
+
+nav a:hover {
+    color: var(--fg);
+}
+
+nav a.active {
+    text-decoration: underline;
+}
+
+/* Code */
+
+#content code {
+    font-family: "Source Code Pro", monospace;
+    font-size: 0.82rem;
+    background: var(--code-bg);
+    padding: 0.15em 0.35em;
+    border-radius: 3px;
+}
+
+pre {
+    background: #faf3cc;
+}
+
+pre code {
+    display: block;
+    overflow-x: scroll;
+    padding: 1rem;
+}
+
+/* Mobile tweaks */
+
+@media (max-width: 600px) {
+    #avatar {
+        display: block;
+        float: none;
+        margin: 0 auto 1rem;
+    }
+}
