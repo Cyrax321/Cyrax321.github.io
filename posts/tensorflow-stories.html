@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Hunting Compiler Bugs and Numerical Traps in TensorFlow - Anandhu P Shaji</title>
+  <link rel="icon" href="data:,">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Source+Code+Pro:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+  <h1>Anandhu P Shaji</h1>
+  <nav>
+    <ul>
+      <li><a href="../index.html">About</a></li>
+      <li><a href="../research.html">Publications</a></li>
+      <li><a href="../code.html">Code</a></li>
+      <li><a href="../activities.html">Activities</a></li>
+      <li><a class="active" href="../blog.html">Blog</a></li>
+    </ul>
+  </nav>
+
+  <div id="content">
+    <h1 class="title">Hunting Compiler Bugs and Numerical Traps in TensorFlow</h1>
+    <p style="margin-top: -0.5rem; color: var(--muted); font-size: 0.95rem;">
+      <time datetime="2026-03-12">March 12, 2026</time> &middot; Anandhu P Shaji &middot; <a href="../code.html#tensorflow">Back to Code</a>
+    </p>
+
+    <p>
+      Machine learning engineers tend to treat framework primitives as immutable mathematical truths. When we write <code>y = tf.math.reciprocal(tf.math.reciprocal(x))</code> or call <code>tf.linalg.det(matrix)</code> during a backward pass, we assume that the underlying graph optimizer, intermediate representation compiler, and C++ kernels will evaluate the expression without altering IEEE 754 semantics or silently dumping core.
+    </p>
+
+    <p>
+      Over the past year, I contributed <strong>24 pull requests</strong> to <a rel="external" href="https://github.com/tensorflow/tensorflow">tensorflow/tensorflow</a> (21 merged, 3 approved). Rather than touching surface-level documentation or cosmetic wrappers, my focus was on root-causing low-level failures across <strong>Grappler</strong> (TensorFlow's computation graph optimizer), <strong>XLA</strong> (Accelerated Linear Algebra compiler), and <strong>Core numerical routines</strong>.
+    </p>
+
+    <p>
+      Here are the stories behind several of those bugs: what went wrong, why standard unit tests missed them, and how we tracked them down to root cause.
+    </p>
+
+    <h2 id="unsound-algebraic-rewrites">Story 1: The Case of the Unsound Involution (1 / (1 / x) == x)</h2>
+    <p>
+      <em>Pull Requests: <a rel="external" href="https://github.com/tensorflow/tensorflow/pull/123195">#123195</a> and <a rel="external" href="https://github.com/tensorflow/tensorflow/pull/123282">#123282</a> (Merged into Grappler)</em>
+    </p>
+
+    <p>
+      One of Grappler's core responsibilities is algebraic simplification: rewriting computation subgraphs into mathematically equivalent, cheaper forms before kernel execution. For example, replacing <code>x + 0</code> with <code>x</code> or simplifying double negations <code>-(-x)</code> to <code>x</code> saves memory bandwidth and kernel launches.
+    </p>
+
+    <p>
+      In pure real analysis, reciprocal is an involution:
+    </p>
+    <blockquote>
+      f(f(x)) = x, where f(x) = 1 / x
+    </blockquote>
+
+    <p>
+      Grappler's algebraic optimizer had generalized involution elimination across unary ops, including <code>Reciprocal</code>. But IEEE 754 floating-point numbers do not behave like the real field &reals;. Consider what happens at floating-point boundaries:
+    </p>
+
+    <pre><code># Without Grappler simplification (Exact IEEE 754):
+x = tf.constant(0.0, dtype=tf.float32)
+r1 = tf.math.reciprocal(x)    # 1.0 / 0.0 -> +inf
+r2 = tf.math.reciprocal(r1)   # 1.0 / +inf -> 0.0 (preserved)
+
+# But what about subnormals or values near float32 max (~3.4e38)?
+x = tf.constant(1e-40, dtype=tf.float32)  # subnormal
+r1 = tf.math.reciprocal(x)               # overflows to +inf!
+r2 = tf.math.reciprocal(r1)               # evaluates to 0.0 != 1e-40!</code></pre>
+
+    <p>
+      When Grappler aggressively eliminated <code>Reciprocal(Reciprocal(x)) &rarr; x</code>, it bypassed the intermediate overflow to <code>+inf</code>. Worse, if <code>x = -0.0</code>, strict floating-point division preserves signed zeroes (<code>1 / -0.0 = -inf</code>, <code>1 / -inf = -0.0</code>), whereas certain hardware targets flushed signs during graph rewrites.
+    </p>
+
+    <p>
+      The fix required carving out <code>Reciprocal</code> from unsafe involution rules in Grappler's C++ optimizer (<code>tensorflow/core/grappler/optimizers/arithmetic_optimizer.cc</code>), ensuring that algebraic rewrites never compromise IEEE 754 compliance for models with extreme dynamic range.
+    </p>
+
+    <h2 id="xla-compiler-segfault">Story 2: The Silent Compiler Segfault in XLA (TensorArray.unstack)</h2>
+    <p>
+      <em>Pull Requests: <a rel="external" href="https://github.com/tensorflow/tensorflow/pull/124929">#124929</a> and <a rel="external" href="https://github.com/tensorflow/tensorflow/pull/124930">#124930</a> (Merged into XLA)</em>
+    </p>
+
+    <p>
+      XLA compiles TensorFlow subgraphs into specialized machine code using LLVM or GPU PTX. Because XLA performs ahead-of-time (AOT) and just-in-time (JIT) shape inference, any mismatch between expected rank and actual shape can lead to undefined memory access.
+    </p>
+
+    <p>
+      We discovered that invoking <code>TensorArray.unstack</code> or <code>TensorArrayScatterOp</code> inside an XLA-compiled context with a scalar (0-D) input caused the entire Python runtime to terminate immediately with a Segmentation Fault:
+    </p>
+
+    <pre><code>import tensorflow as tf
+
+@tf.function(jit_compile=True)
+def test_unstack():
+    ta = tf.TensorArray(dtype=tf.float32, size=0, dynamic_size=True)
+    # Scalar input passed into unstack:
+    return ta.unstack(tf.constant(42.0))
+
+test_unstack()  # Fatal: Segmentation fault (core dumped)</code></pre>
+
+    <p>
+      Tracking this down required running GDB attached to the Python binary. In the XLA shape translation pass:
+    </p>
+
+    <pre><code>// Inside xla/service/shape_inference.cc:
+xla::Shape element_shape = tensor_shape;
+element_shape.DeleteDimension(0);  // Unchecked assumption: rank >= 1</code></pre>
+
+    <p>
+      Because <code>tensor_shape</code> had rank 0, <code>DeleteDimension(0)</code> attempted to resize an empty vector and read index 0 out of bounds. The compiler crashed before emitting any diagnostic error message.
+    </p>
+
+    <p>
+      In PR #124929 and #124930, we introduced rank validation checks at the XLA lowering boundary, translating what was an unrecoverable C++ segfault into a clean, actionable <code>InvalidArgumentError: Input tensor must have rank >= 1 to unstack</code>.
+    </p>
+
+    <h2 id="singular-matrix-gradients">Story 3: Singular Matrices and Exploding Gradients in tf.linalg.det</h2>
+    <p>
+      <em>Pull Request: <a rel="external" href="https://github.com/tensorflow/tensorflow/pull/122823">#122823</a> (Merged into Core Math / Gradients)</em>
+    </p>
+
+    <p>
+      In deep learning, matrix determinants appear in Gaussian process log-likelihoods, normalizing flows, and entropy regularization. Automatic differentiation of the matrix determinant relies on Jacobi's formula:
+    </p>
+
+    <blockquote>
+      d(det(A)) / dA = det(A) &middot; (A<sup>-1</sup>)<sup>T</sup>
+    </blockquote>
+
+    <p>
+      Mathematically, this identity holds even when <code>det(A) = 0</code>, provided one takes the limit using the matrix adjugate: <code>adj(A)<sup>T</sup></code>.
+    </p>
+
+    <p>
+      In practice, however, TensorFlow computed the gradient by calculating <code>A<sup>-1</sup></code> numerically using LU decomposition and then multiplying by <code>det(A)</code>:
+    </p>
+
+    <pre><code># Backpropagation through a singular matrix:
+A = tf.Variable([[1.0, 2.0], [2.0, 4.0]])  # det(A) = 0.0
+with tf.GradientTape() as tape:
+    d = tf.linalg.det(A)
+grad = tape.gradient(d, A)
+
+# Expected gradient: [[4.0, -2.0], [-2.0, 1.0]] (adjugate transpose)
+# Actual result in TensorFlow: [[NaN, NaN], [NaN, NaN]]</code></pre>
+
+    <p>
+      Because <code>A</code> is singular, the numerical inverse contained <code>inf</code> and <code>NaN</code> entries. The subsequent multiplication <code>0.0 * inf</code> produced <code>NaN</code>, silently destroying the optimizer's momentum state in any training loop where matrices passed through a singular boundary.
+    </p>
+
+    <p>
+      We overhauled the gradient kernel to detect singular conditions and gracefully handle non-invertible matrices during the backward pass, preventing catastrophic NaN contamination in downstream gradient updates.
+    </p>
+
+    <h2 id="numerical-boundary-traps">Story 4: The IEEE 754 Boundary Traps (-inf, igamma, and logsumexp)</h2>
+    <p>
+      <em>Pull Requests: <a rel="external" href="https://github.com/tensorflow/tensorflow/pull/123862">#123862</a>, <a rel="external" href="https://github.com/tensorflow/tensorflow/pull/124927">#124927</a>, <a rel="external" href="https://github.com/tensorflow/tensorflow/pull/115554">#115554</a></em>
+    </p>
+
+    <p>
+      Floating-point corner cases are notorious for slipping past standard random-value unit tests. Three PRs addressed subtle edge cases that only surfaced under extreme inputs:
+    </p>
+
+    <ul>
+      <li>
+        <strong>Negative infinity division in <code>tf.math.floordiv</code> (#123862)</strong>: Dividing finite positive numbers by <code>-inf</code> mathematically equals <code>-0.0</code>. Under floor division, <code>floor(-0.0)</code> must be <code>-0.0</code> (or <code>0.0</code>), but integer-oriented floor shortcuts in the C++ kernel truncated the quotient to <code>-1.0</code>.
+      </li>
+      <li>
+        <strong>Domain boundaries in <code>tf.math.igamma</code> (#124927, #123803)</strong>: The lower incomplete gamma function &gamma;(a, x) and its Jacobian gradient tests failed with unexpected <code>NaN</code> outputs when evaluated at parameter boundaries (<code>x &rarr; 0</code> with <code>a &le; 0</code>), requiring rigorous domain guards in the Eigen kernel wrappers.
+      </li>
+      <li>
+        <strong>Positive infinity in <code>tf.math.cumulative_logsumexp</code> (#115554)</strong>: When an input sequence contained <code>+inf</code>, the running accumulator subtracted the maximum value, calculating <code>inf - inf = NaN</code> instead of correctly saturating the prefix sum to <code>+inf</code>.
+      </li>
+    </ul>
+
+    <h2 id="lessons">Lessons from 24 Pull Requests</h2>
+    <p>
+      Working on a library of TensorFlow's scale - with millions of lines of C++, Python, MLIR, and CUDA - reinforced several core engineering principles:
+    </p>
+
+    <ol>
+      <li>
+        <strong>Compilers must respect hardware floating-point standards</strong>: High-level algebraic laws (commutativity, associativity, invertibility) do not hold in finite-precision IEEE 754. Optimization passes must verify that algebraic rewrites do not alter behavior on subnormals, infinities, or signed zeroes.
+      </li>
+      <li>
+        <strong>Crash early with informative diagnostics</strong>: Unchecked assumptions in internal compiler passes (such as vector indexing in shape inference) turn minor user mistakes into fatal segmentation faults. Validating invariants at the boundary protects the entire runtime.
+      </li>
+      <li>
+        <strong>Differential testing beats random testing</strong>: Standard test suites with uniform random numbers almost never hit singular matrices, negative zeroes, or extreme ratios. Generating adversarial edge cases is essential for rock-solid numerical libraries.
+      </li>
+    </ol>
+
+    <p style="margin-top: 2rem; border-top: 1px solid var(--rule); padding-top: 1rem;">
+      <em>All 24 pull requests, including test cases, code reviews, and discussions, can be viewed directly on <a rel="external" href="https://github.com/tensorflow/tensorflow/pulls?q=author%3ACyrax8590">GitHub (@Cyrax8590)</a>. For an overview of my systems and open-source projects, visit the <a href="../code.html">Code</a> page.</em>
+    </p>
+  </div>
+
+  <footer>&copy; 2026 Anandhu P Shaji</footer>
+</body>
+</html>

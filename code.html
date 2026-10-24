@@ -74,12 +74,216 @@
     </div>
 
     <h2 id="tensorflow">Open-source contributions</h2>
-    <p><a rel="external" href="https://github.com/tensorflow/tensorflow/pulls?q=author%3ACyrax321">24 pull requests to tensorflow/tensorflow</a>: 21 merged, 3 approved.</p>
-    <ul>
-      <li>Fixes across TensorFlow Core, Grappler, MLIR, and XLA covering numerical correctness, gradient stability, compiler optimizations, dtype handling, and runtime stability.</li>
-      <li>Singular-matrix gradient failures, an unsound Reciprocal compiler rewrite, ArgMax/ArgMin optimization correctness, and NaN handling in cumulative log-sum-exp.</li>
-      <li>Added and improved comprehensive test coverage across the fixes.</li>
-    </ul>
+    <p>
+      Core contributor to <a rel="external" href="https://github.com/tensorflow/tensorflow">tensorflow/tensorflow</a> with <a rel="external" href="https://github.com/tensorflow/tensorflow/pulls?q=author%3ACyrax321">24 pull requests</a> (21 merged, 3 approved). Rather than cosmetic patches, my work focused on root-causing silent compiler crashes in XLA, unsound algebraic rewrites in Grappler, and numerical stability in automatic differentiation.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 10.5rem;">Subsystem</th>
+          <th>Technical Focus &amp; Root-Cause Fixes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <strong>Grappler &amp; Optimizer</strong><br>
+            <small style="color: var(--muted);">C++, Graph Rewrites</small>
+          </td>
+          <td>
+            Excluded <code>tf.Reciprocal</code> from unsound involution simplification where <code>1/(1/x) &rarr; x</code> violated IEEE 754 float rules on subnormals and overflows (<a rel="external" href="https://github.com/tensorflow/tensorflow/pull/123195">#123195</a>, <a rel="external" href="https://github.com/tensorflow/tensorflow/pull/123282">#123282</a>). Corrected unsound ArgMax/ArgMin graph rewrites on saturated float32 boundaries (<a rel="external" href="https://github.com/tensorflow/tensorflow/pull/122826">#122826</a>).
+            <br>
+            <small>&rarr; <a href="posts/tensorflow-stories.html#unsound-algebraic-rewrites">Read the technical story in my blog &rarr;</a></small>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <strong>XLA Compiler</strong><br>
+            <small style="color: var(--muted);">C++, Shape Lowering</small>
+          </td>
+          <td>
+            Resolved fatal segmentation fault during XLA shape lowering in <code>TensorArray.unstack</code> and <code>TensorArrayScatterOp</code> caused by unchecked <code>RemoveDim(0)</code> calls on rank-0 scalar tensors (<a rel="external" href="https://github.com/tensorflow/tensorflow/pull/124930">#124930</a>, <a rel="external" href="https://github.com/tensorflow/tensorflow/pull/124929">#124929</a>). Fixed compilation failure in <code>tf.experimental.numpy.cross</code> with static trailing dimensions (<a rel="external" href="https://github.com/tensorflow/tensorflow/pull/124588">#124588</a>) and negative permutation index validation in <code>tf.transpose</code> (<a rel="external" href="https://github.com/tensorflow/tensorflow/pull/124586">#124586</a>).
+            <br>
+            <small>&rarr; <a href="posts/tensorflow-stories.html#xla-compiler-segfault">Read the technical story in my blog &rarr;</a></small>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <strong>Core Math &amp; Gradients</strong><br>
+            <small style="color: var(--muted);">C++, Eigen, Python</small>
+          </td>
+          <td>
+            Safeguarded <code>tf.linalg.det</code> backward pass to prevent gradient explosion and NaN contamination on singular matrices (<a rel="external" href="https://github.com/tensorflow/tensorflow/pull/122823">#122823</a>). Fixed <code>tf.math.floordiv</code> returning incorrect results for negative infinity divisors (<a rel="external" href="https://github.com/tensorflow/tensorflow/pull/123862">#123862</a>), added numerical Jacobian gradient tests for <code>tf.math.igamma</code> (<a rel="external" href="https://github.com/tensorflow/tensorflow/pull/123803">#123803</a>), and prevented <code>+inf</code> accumulators from triggering NaN cascades in <code>tf.math.cumulative_logsumexp</code> (<a rel="external" href="https://github.com/tensorflow/tensorflow/pull/115554">#115554</a>).
+            <br>
+            <small>&rarr; <a href="posts/tensorflow-stories.html#singular-matrix-gradients">Read the technical story in my blog &rarr;</a></small>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <strong>Runtime &amp; Typing</strong><br>
+            <small style="color: var(--muted);">Python, C API</small>
+          </td>
+          <td>
+            Fixed dynamic <code>TypeError</code> in <code>tf.nn.weighted_moments</code> when axes are passed as Tensor instances (<a rel="external" href="https://github.com/tensorflow/tensorflow/pull/122402">#122402</a>), ensured PosixPath compatibility in runtime imports (<a rel="external" href="https://github.com/tensorflow/tensorflow/pull/115551">#115551</a>), and standardized specific exception typing across <code>tensorflow/python</code> and <code>tensorflow/tools</code> (<a rel="external" href="https://github.com/tensorflow/tensorflow/pull/117860">#117860</a>, <a rel="external" href="https://github.com/tensorflow/tensorflow/pull/117895">#117895</a>).
+            <br>
+            <small>&rarr; <a href="posts/tensorflow-stories.html#lessons">Read lessons and takeaways in my blog &rarr;</a></small>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p style="margin: 1.25rem 0;">
+      &rarr; <strong><a href="posts/tensorflow-stories.html">Read the complete technical story in my blog: "Hunting Compiler Bugs and Numerical Traps in TensorFlow" &rarr;</a></strong>
+    </p>
+
+    <details>
+      <summary>View complete list of 24 pull requests to tensorflow/tensorflow</summary>
+      <table style="margin-top: 0.75rem; font-size: 0.9rem;">
+        <thead>
+          <tr>
+            <th style="width: 4.5rem;">PR</th>
+            <th>Title</th>
+            <th style="width: 6.5rem;">Subsystem</th>
+            <th style="width: 5rem;">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a rel="external" href="https://github.com/tensorflow/tensorflow/pull/124930">#124930</a></td>
+            <td>Reject scalar values in XLA TensorArrayScatterOp before RemoveDim(0)</td>
+            <td>XLA</td>
+            <td>Merged</td>
+          </tr>
+          <tr>
+            <td><a rel="external" href="https://github.com/tensorflow/tensorflow/pull/124929">#124929</a></td>
+            <td>Fix XLA TensorArray.unstack segfault on scalar input</td>
+            <td>XLA</td>
+            <td>Merged</td>
+          </tr>
+          <tr>
+            <td><a rel="external" href="https://github.com/tensorflow/tensorflow/pull/124927">#124927</a></td>
+            <td>Fix tf.math.igamma to return NaN for out-of-domain inputs (a &le; 0, x == 0)</td>
+            <td>Core Math</td>
+            <td>Merged</td>
+          </tr>
+          <tr>
+            <td><a rel="external" href="https://github.com/tensorflow/tensorflow/pull/124588">#124588</a></td>
+            <td>Fix XLA compile failure in tf.experimental.numpy.cross with static last dimension</td>
+            <td>XLA</td>
+            <td>Merged</td>
+          </tr>
+          <tr>
+            <td><a rel="external" href="https://github.com/tensorflow/tensorflow/pull/124586">#124586</a></td>
+            <td>Fix tf.transpose rejecting negative perm indices under XLA compilation</td>
+            <td>XLA</td>
+            <td>Merged</td>
+          </tr>
+          <tr>
+            <td><a rel="external" href="https://github.com/tensorflow/tensorflow/pull/124450">#124450</a></td>
+            <td>Fix documentation typos in Python docstrings and comments</td>
+            <td>Docs</td>
+            <td>Merged</td>
+          </tr>
+          <tr>
+            <td><a rel="external" href="https://github.com/tensorflow/tensorflow/pull/124407">#124407</a></td>
+            <td>Fix OverridableFetchContent override example to use prefixed variable name</td>
+            <td>Build</td>
+            <td>Merged</td>
+          </tr>
+          <tr>
+            <td><a rel="external" href="https://github.com/tensorflow/tensorflow/pull/124233">#124233</a></td>
+            <td>Validate resource variable dtypes in training ops</td>
+            <td>Core</td>
+            <td>Approved</td>
+          </tr>
+          <tr>
+            <td><a rel="external" href="https://github.com/tensorflow/tensorflow/pull/123862">#123862</a></td>
+            <td>Fix tf.math.floordiv wrong result for -inf divisors</td>
+            <td>Core Math</td>
+            <td>Open</td>
+          </tr>
+          <tr>
+            <td><a rel="external" href="https://github.com/tensorflow/tensorflow/pull/123803">#123803</a></td>
+            <td>Add numerical Jacobian test for igamma x-gradient</td>
+            <td>Gradients</td>
+            <td>Merged</td>
+          </tr>
+          <tr>
+            <td><a rel="external" href="https://github.com/tensorflow/tensorflow/pull/123282">#123282</a></td>
+            <td>Remove incorrect TF_Involution trait from tf.Reciprocal</td>
+            <td>MLIR</td>
+            <td>Merged</td>
+          </tr>
+          <tr>
+            <td><a rel="external" href="https://github.com/tensorflow/tensorflow/pull/123195">#123195</a></td>
+            <td>Exclude Reciprocal from Grappler involution simplification</td>
+            <td>Grappler</td>
+            <td>Merged</td>
+          </tr>
+          <tr>
+            <td><a rel="external" href="https://github.com/tensorflow/tensorflow/pull/122826">#122826</a></td>
+            <td>Fix Grappler ArgMax/ArgMin wrong results for saturating ops in float32</td>
+            <td>Grappler</td>
+            <td>Merged</td>
+          </tr>
+          <tr>
+            <td><a rel="external" href="https://github.com/tensorflow/tensorflow/pull/122823">#122823</a></td>
+            <td>Fix tf.linalg.det gradient crash on singular matrices</td>
+            <td>Gradients</td>
+            <td>Approved</td>
+          </tr>
+          <tr>
+            <td><a rel="external" href="https://github.com/tensorflow/tensorflow/pull/122402">#122402</a></td>
+            <td>Fix TypeError in tf.nn.weighted_moments when axes is a tf.Tensor</td>
+            <td>NN Ops</td>
+            <td>Merged</td>
+          </tr>
+          <tr>
+            <td><a rel="external" href="https://github.com/tensorflow/tensorflow/pull/117895">#117895</a></td>
+            <td>Replace generic Exception with specific types in tensorflow/tools</td>
+            <td>Tools</td>
+            <td>Merged</td>
+          </tr>
+          <tr>
+            <td><a rel="external" href="https://github.com/tensorflow/tensorflow/pull/117894">#117894</a></td>
+            <td>Use idiomatic Python patterns in speech_commands examples</td>
+            <td>Examples</td>
+            <td>Merged</td>
+          </tr>
+          <tr>
+            <td><a rel="external" href="https://github.com/tensorflow/tensorflow/pull/117860">#117860</a></td>
+            <td>Replace generic Exception with specific exception types in tensorflow/python</td>
+            <td>Python API</td>
+            <td>Merged</td>
+          </tr>
+          <tr>
+            <td><a rel="external" href="https://github.com/tensorflow/tensorflow/pull/117858">#117858</a></td>
+            <td>Replace generic Exception with specific exception types in speech_commands</td>
+            <td>Examples</td>
+            <td>Merged</td>
+          </tr>
+          <tr>
+            <td><a rel="external" href="https://github.com/tensorflow/tensorflow/pull/115560">#115560</a></td>
+            <td>Docs: Fix miscellaneous spelling typos across codebase</td>
+            <td>Docs</td>
+            <td>Merged</td>
+          </tr>
+          <tr>
+            <td><a rel="external" href="https://github.com/tensorflow/tensorflow/pull/115554">#115554</a></td>
+            <td>Fix tf.math.cumulative_logsumexp NaN for +inf inputs</td>
+            <td>Core Math</td>
+            <td>Merged</td>
+          </tr>
+          <tr>
+            <td><a rel="external" href="https://github.com/tensorflow/tensorflow/pull/115551">#115551</a></td>
+            <td>Fix TypeError when sys.path contains PosixPath objects</td>
+            <td>Runtime</td>
+            <td>Merged</td>
+          </tr>
+        </tbody>
+      </table>
+    </details>
 
     <h2 id="skills">Technical skills</h2>
     <table>
