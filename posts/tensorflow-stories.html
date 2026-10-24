@@ -53,9 +53,9 @@
     <p>
       In pure real analysis, reciprocal is an involution:
     </p>
-    <blockquote>
+    <p style="text-align: center; margin: 1.25rem 0; font-style: italic;">
       f(f(x)) = x, where f(x) = 1 / x
-    </blockquote>
+    </p>
 
     <p>
       Grappler's algebraic optimizer had generalized involution elimination across unary ops, including <code>Reciprocal</code>. But IEEE 754 floating-point numbers do not behave like the real field &reals;. Consider what happens at floating-point boundaries:
@@ -127,9 +127,9 @@ element_shape.DeleteDimension(0);  // Unchecked assumption: rank >= 1</code></pr
       In deep learning, matrix determinants appear in Gaussian process log-likelihoods, normalizing flows, and entropy regularization. Automatic differentiation of the matrix determinant relies on Jacobi's formula:
     </p>
 
-    <blockquote>
+    <p style="text-align: center; margin: 1.25rem 0; font-style: italic;">
       d(det(A)) / dA = det(A) &middot; (A<sup>-1</sup>)<sup>T</sup>
-    </blockquote>
+    </p>
 
     <p>
       Mathematically, this identity holds even when <code>det(A) = 0</code>, provided one takes the limit using the matrix adjugate: <code>adj(A)<sup>T</sup></code>.
@@ -194,8 +194,8 @@ grad = tape.gradient(d, A)
       </li>
     </ol>
 
-    <p style="margin-top: 2rem; border-top: 1px solid var(--rule); padding-top: 1rem;">
-      <em>All 24 pull requests, including test cases, code reviews, and discussions, can be viewed directly on <a rel="external" href="https://github.com/tensorflow/tensorflow/pulls?q=author%3ACyrax8590">GitHub (@Cyrax8590)</a>. For an overview of my systems and open-source projects, visit the <a href="../code.html">Code</a> page.</em>
+    <p style="margin-top: 2rem;">
+      <em>All 24 pull requests, including test cases, code reviews, and discussions, can be viewed directly on <a rel="external" href="https://github.com/tensorflow/tensorflow/pulls?q=author%3ACyrax321">GitHub (@Cyrax321)</a>. For an overview of my systems and open-source projects, visit the <a href="../code.html">Code</a> page.</em>
     </p>
   </div>
 

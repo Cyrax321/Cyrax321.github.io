@@ -240,10 +240,10 @@ pre code {
 }
 
 blockquote {
-    border-left: 2px solid var(--link);
     margin: 1.25rem 0;
-    padding: 0.25rem 0 0.25rem 1rem;
+    padding: 0;
     color: var(--muted);
+    font-style: italic;
 }
 
 details {
