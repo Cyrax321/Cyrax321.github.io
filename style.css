@@ -11,8 +11,15 @@
     --rule: #ddd;
 }
 
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
 html {
     font-size: 18px;
+    overflow-x: hidden;
 }
 
 body {
@@ -23,6 +30,8 @@ body {
     margin: 0;
     padding: 1.5rem 1rem 1rem;
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    max-width: 100%;
 }
 
 h1,
@@ -225,10 +234,18 @@ nav a.active {
     background: var(--code-bg);
     padding: 0.15em 0.35em;
     border-radius: 3px;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 pre {
     background: #faf3cc;
+    border-radius: 4px;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    box-sizing: border-box;
+    margin: 1.25rem 0;
 }
 
 pre code {
@@ -237,6 +254,9 @@ pre code {
     padding: 0.85rem 1rem;
     font-size: 0.82rem;
     line-height: 1.45;
+    white-space: pre;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 blockquote {
@@ -251,6 +271,9 @@ details {
     border: 1px solid var(--rule);
     border-radius: 4px;
     padding: 0.6rem 0.85rem;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
 details summary {
@@ -273,15 +296,21 @@ details[open] summary {
 /* Responsive Utilities & Mobile Optimization */
 
 .table-scroll {
+    width: 100%;
+    max-width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     margin: 0.75rem 0 1rem;
+    box-sizing: border-box;
 }
 
 .activity-chart {
+    width: 100%;
+    max-width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     margin: 1.25rem 0 1.5rem;
+    box-sizing: border-box;
 }
 
 @media (max-width: 650px) {
@@ -290,7 +319,9 @@ details[open] summary {
     }
 
     body {
-        padding: 1.15rem 0.9rem;
+        padding: 1.15rem 0.85rem;
+        max-width: 100vw;
+        overflow-x: hidden;
     }
 
     body > h1 {
@@ -308,7 +339,7 @@ details[open] summary {
 
     /* Navigation */
     nav ul {
-        gap: 0.5rem 1.1rem;
+        gap: 0.5rem 1rem;
         margin: 0.75rem 0 1.5rem;
     }
 
@@ -326,35 +357,46 @@ details[open] summary {
         height: 150px;
     }
 
-    /* Content text wrapping */
-    #content {
+    /* Text & container containment */
+    #content,
+    #content p,
+    #content li,
+    #content td,
+    #content strong {
         overflow-wrap: break-word;
         word-wrap: break-word;
+        max-width: 100%;
     }
 
     /* Stack two-column project and subsystem tables into clean readable blocks on mobile */
-    table.responsive-stack,
-    table.responsive-stack thead,
-    table.responsive-stack tbody,
-    table.responsive-stack tr,
-    table.responsive-stack td,
-    table.responsive-stack th {
+    table.responsive-stack {
         display: block;
         width: 100% !important;
-        box-sizing: border-box;
+        max-width: 100% !important;
     }
 
     table.responsive-stack thead {
         display: none;
     }
 
+    table.responsive-stack tbody {
+        display: block;
+        width: 100% !important;
+    }
+
     table.responsive-stack tr {
+        display: block;
+        width: 100% !important;
         padding: 0.85rem 0;
         border-bottom: 1px solid var(--rule);
+        box-sizing: border-box;
     }
 
     table.responsive-stack td {
+        display: block;
+        width: 100% !important;
         padding: 0.15rem 0;
+        box-sizing: border-box;
     }
 
     table.responsive-stack td:first-child {
@@ -364,7 +406,7 @@ details[open] summary {
     /* Compact date columns in updates and education */
     td.date {
         width: 5.25rem !important;
-        min-width: 5rem;
+        min-width: 4.8rem;
         font-size: 0.9rem;
         padding-right: 0.5rem;
     }
@@ -378,23 +420,46 @@ details[open] summary {
 
     /* Skills table compact label column */
     td[style*="width: 7rem"] {
-        width: 5.5rem !important;
+        width: 5.25rem !important;
     }
 
-    /* Code blocks */
+    /* Code blocks strictly contained */
+    pre {
+        max-width: 100%;
+        overflow-x: auto;
+        box-sizing: border-box;
+    }
+
     pre code {
-        font-size: 0.8rem;
-        padding: 0.75rem;
+        font-size: 0.78rem;
+        padding: 0.75rem 0.85rem;
         -webkit-overflow-scrolling: touch;
+        white-space: pre;
     }
 
-    /* GitHub activity graph minimum width for readable horizontal touch scroll */
+    /* GitHub activity graph horizontal swipe within isolated container */
+    .activity-chart {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
     .activity-chart img {
-        min-width: 620px;
+        display: block;
+        max-width: none;
+        width: 580px;
+        height: auto;
     }
 
     /* Multi-column tables inside details */
+    .table-scroll {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
     .table-scroll table {
-        min-width: 480px;
+        min-width: 440px;
+        width: 100%;
     }
 }
