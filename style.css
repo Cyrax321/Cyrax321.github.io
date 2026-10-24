@@ -270,12 +270,131 @@ details[open] summary {
     padding-bottom: 0.4rem;
 }
 
-/* Mobile tweaks */
+/* Responsive Utilities & Mobile Optimization */
 
-@media (max-width: 600px) {
+.table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0.75rem 0 1rem;
+}
+
+.activity-chart {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 1.25rem 0 1.5rem;
+}
+
+@media (max-width: 650px) {
+    html {
+        font-size: 16.5px;
+    }
+
+    body {
+        padding: 1.15rem 0.9rem;
+    }
+
+    body > h1 {
+        font-size: 1.85rem;
+    }
+
+    #content h1 {
+        font-size: 1.65rem;
+    }
+
+    h2 {
+        font-size: 1.25rem;
+        margin-top: 1.75rem;
+    }
+
+    /* Navigation */
+    nav ul {
+        gap: 0.5rem 1.1rem;
+        margin: 0.75rem 0 1.5rem;
+    }
+
+    nav a {
+        padding: 0.2rem 0;
+        font-size: 1.05rem;
+    }
+
+    /* Centered Avatar on Mobile */
     #avatar {
         display: block;
         float: none;
-        margin: 0 auto 1rem;
+        margin: 0.5rem auto 1.5rem;
+        width: 150px;
+        height: 150px;
+    }
+
+    /* Content text wrapping */
+    #content {
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+    }
+
+    /* Stack two-column project and subsystem tables into clean readable blocks on mobile */
+    table.responsive-stack,
+    table.responsive-stack thead,
+    table.responsive-stack tbody,
+    table.responsive-stack tr,
+    table.responsive-stack td,
+    table.responsive-stack th {
+        display: block;
+        width: 100% !important;
+        box-sizing: border-box;
+    }
+
+    table.responsive-stack thead {
+        display: none;
+    }
+
+    table.responsive-stack tr {
+        padding: 0.85rem 0;
+        border-bottom: 1px solid var(--rule);
+    }
+
+    table.responsive-stack td {
+        padding: 0.15rem 0;
+    }
+
+    table.responsive-stack td:first-child {
+        margin-bottom: 0.35rem;
+    }
+
+    /* Compact date columns in updates and education */
+    td.date {
+        width: 5.25rem !important;
+        min-width: 5rem;
+        font-size: 0.9rem;
+        padding-right: 0.5rem;
+    }
+
+    /* Blog date column */
+    table th[style*="width: 8rem"],
+    table td:has(time) {
+        width: auto !important;
+        white-space: nowrap;
+    }
+
+    /* Skills table compact label column */
+    td[style*="width: 7rem"] {
+        width: 5.5rem !important;
+    }
+
+    /* Code blocks */
+    pre code {
+        font-size: 0.8rem;
+        padding: 0.75rem;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* GitHub activity graph minimum width for readable horizontal touch scroll */
+    .activity-chart img {
+        min-width: 620px;
+    }
+
+    /* Multi-column tables inside details */
+    .table-scroll table {
+        min-width: 480px;
     }
 }
