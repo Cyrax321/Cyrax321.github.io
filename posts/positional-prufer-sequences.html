@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Positional Prüfer Sequences: Encoding Ordered Trees in O(n) - Anandhu P Shaji</title>
+  <meta name="description" content="A length-(n-1) bijective integer encoding for ordered rooted labeled trees with O(n) encoding/decoding and an O(1) query Navigation Index.">
+  <meta name="author" content="Anandhu P Shaji">
+  <link rel="canonical" href="https://anandhupshaji.me/posts/positional-prufer-sequences.html">
+  <meta property="og:title" content="Positional Prüfer Sequences: Encoding Ordered Trees in O(n)">
+  <meta property="og:description" content="A length-(n-1) bijective integer encoding for ordered rooted labeled trees with O(n) time complexity and an O(1) query Navigation Index.">
+  <meta property="og:url" content="https://anandhupshaji.me/posts/positional-prufer-sequences.html">
+  <meta property="og:type" content="article">
+  <meta property="article:published_time" content="2026-06-20">
+  <meta property="article:author" content="Anandhu P Shaji">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Positional Prüfer Sequences: Encoding Ordered Trees in O(n)">
+  <meta name="twitter:description" content="A length-(n-1) bijective integer encoding for ordered rooted labeled trees with O(n) time complexity and an O(1) query Navigation Index.">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="alternate" type="application/rss+xml" title="Anandhu P Shaji &mdash; RSS Feed" href="../feed.xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Source+Code+Pro:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+  <h1>Anandhu P Shaji</h1>
+  <nav aria-label="Primary">
+    <ul>
+      <li><a href="../index.html">About</a></li>
+      <li><a href="../research.html">Publications</a></li>
+      <li><a href="../code.html">Code</a></li>
+      <li><a href="../activities.html">Activities</a></li>
+      <li><a class="active" href="../blog.html">Blog</a></li>
+    </ul>
+  </nav>
+
+  <main id="content">
+    <h1 class="title">Positional Prüfer Sequences: Encoding Ordered Trees in O(n)</h1>
+    <p style="margin-top: -0.5rem; color: var(--muted); font-size: 0.95rem;">
+      <time datetime="2026-06-20">June 20, 2026</time> &middot; Anandhu P Shaji &middot; <a href="../research.html#prufer">Research Paper</a>
+    </p>
+
+    <p>
+      In 1918, Heinz Prüfer proved Cayley's formula $n^{n-2}$ by establishing a bijection between labeled trees on $n$ vertices and sequences of length $n - 2$ over the alphabet $\{1, 2, \dots, n\}$. While classical Prüfer sequences remain fundamental in algebraic graph theory and network generation, they apply strictly to <em>unordered, unrooted</em> trees.
+    </p>
+
+    <p>
+      In theoretical computer science, compiler abstract syntax trees (ASTs), DOM hierarchies, XML schemas, and hierarchical decision processes are <strong>ordered rooted trees</strong>: the relative sibling order matters, and the root is fixed.
+    </p>
+
+    <p>
+      In our work submitted to <em>Foundations of Software Technology and Theoretical Computer Science (FSTTCS 2026)</em>, we introduce the <strong>Positional Prüfer Sequence (PPS)</strong>: a bijective encoding that maps any ordered rooted labeled tree on $n$ vertices to an integer sequence of length $n - 1$ in optimal $\mathcal{O}(n)$ time.
+    </p>
+
+    <h2>The Positional Prüfer Formulation</h2>
+    <p>
+      Classical Prüfer encoding repeatedly removes the leaf with the smallest label and appends its neighbor to the code. However, in an ordered tree, removing arbitrary leaves based solely on numerical label disrupts sibling positioning.
+    </p>
+
+    <p>
+      Instead of using global minimum labels across the entire tree, PPS processes leaves through an <em>ordered bottom-up frontier</em>:
+    </p>
+    <ul>
+      <li>Leaves are retired in strictly defined left-to-right positional order relative to their parent subtrees.</li>
+      <li>For each retired node $v$, we record a composite tuple: the parent label $p(v)$ paired with the 0-indexed sibling rank $r(v)$.</li>
+      <li>By interleaving parent references and relative sibling offsets, the total sequence length is bounded to exactly $n - 1$ elements.</li>
+    </ul>
+
+    <h2>Optimal $\mathcal{O}(n)$ Encoding and Reconstruction</h2>
+    <p>
+      Naive implementations that search for frontier leaves at each step require $\mathcal{O}(n \log n)$ or $\mathcal{O}(n^2)$ time. We designed a linear-time encoder using an in-degree counter combined with a two-pointer frontier queue:
+    </p>
+    <pre><code>def encode_pps(tree: OrderedTree) -> List[Tuple[int, int]]:
+    n = len(tree.nodes)
+    degrees = tree.compute_out_degrees()
+    leaf_queue = tree.collect_initial_leaves()
+    sequence = []
+
+    while len(sequence) < n - 1:
+        leaf = leaf_queue.popleft()
+        parent, rank = tree.parent_of(leaf), tree.sibling_rank(leaf)
+        sequence.append((parent, rank))
+        degrees[parent] -= 1
+        if degrees[parent] == 0:
+            leaf_queue.append(parent)
+
+    return sequence</code></pre>
+
+    <h2>The Navigation Index: $\mathcal{O}(1)$ Structural Queries</h2>
+    <p>
+      A common limitation of compact tree encodings (such as balanced parentheses or DFUDS) is that querying the $k$-th child or computing parent pointers requires traversal or auxiliary rank/select structures that introduce significant space overhead.
+    </p>
+
+    <p>
+      We augment the Positional Prüfer Sequence with a <strong>Navigation Index (NI)</strong> of size $\mathcal{O}(n)$ words. By exploiting the recurrence of parent occurrences in the PPS, the Navigation Index answers:
+    </p>
+    <ul>
+      <li><code>get_parent(v)</code> in $\mathcal{O}(1)$ time.</li>
+      <li><code>get_kth_child(v, k)</code> in $\mathcal{O}(1)$ time.</li>
+      <li><code>subtree_size(v)</code> in $\mathcal{O}(1)$ time.</li>
+    </ul>
+
+    <h2>Comparative Summary</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Representation</th>
+          <th>Bijective?</th>
+          <th>Ordered Trees?</th>
+          <th>Encode / Decode</th>
+          <th>Query Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Classical Prüfer (1918)</td>
+          <td>Yes</td>
+          <td>No</td>
+          <td>$\mathcal{O}(n)$</td>
+          <td>$\mathcal{O}(n)$</td>
+        </tr>
+        <tr>
+          <td>Balanced Parentheses</td>
+          <td>Yes</td>
+          <td>Yes</td>
+          <td>$\mathcal{O}(n)$</td>
+          <td>$\mathcal{O}(1)$ (with rank/select)</td>
+        </tr>
+        <tr>
+          <td>DFUDS</td>
+          <td>Yes</td>
+          <td>Yes</td>
+          <td>$\mathcal{O}(n)$</td>
+          <td>$\mathcal{O}(1)$</td>
+        </tr>
+        <tr>
+          <td><strong>Positional Prüfer + NI (Ours)</strong></td>
+          <td><strong>Yes</strong></td>
+          <td><strong>Yes</strong></td>
+          <td><strong>$\mathcal{O}(n)$</strong></td>
+          <td><strong>$\mathcal{O}(1)$ direct index</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p style="margin-top: 2rem;">
+      <a href="../blog.html">&larr; Back to all blog posts</a>
+    </p>
+  </main>
+
+  <footer>
+    <a href="../feed.xml">RSS Feed</a> &middot; &copy; 2026 Anandhu P Shaji
+  </footer>
+</body>
+</html>
