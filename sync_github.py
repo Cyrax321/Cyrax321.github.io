@@ -45,9 +45,16 @@ def fetch_contributions_data(username: str = USERNAME, token: Optional[str] = No
             data=json.dumps({"query": GRAPHQL_QUERY, "variables": {"username": username}}).encode("utf-8"),
             headers={"Authorization": f"Bearer {token}", "User-Agent": "Portfolio-Sync"}
         )
-        with urllib.request.urlopen(req) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-            return data["data"]["user"]["contributionsCollection"]["contributionCalendar"]
+        try:
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                if "errors" in data:
+                    raise RuntimeError(f"GraphQL API returned errors: {data['errors']}")
+                return data["data"]["user"]["contributionsCollection"]["contributionCalendar"]
+        except urllib.error.HTTPError as exc:
+            raise RuntimeError(f"GitHub API HTTP error ({exc.code}): {exc.reason}") from exc
+        except urllib.error.URLError as exc:
+            raise RuntimeError(f"Failed to reach GitHub API: {exc.reason}") from exc
     else:
         # Running locally with gh CLI
         cmd = [
@@ -55,9 +62,17 @@ def fetch_contributions_data(username: str = USERNAME, token: Optional[str] = No
             "-F", f"username={username}",
             "-f", f"query={GRAPHQL_QUERY}"
         ]
-        res = subprocess.run(cmd, capture_output=True, text=True, check=True)
-        data = json.loads(res.stdout)
-        return data["data"]["user"]["contributionsCollection"]["contributionCalendar"]
+        try:
+            res = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            data = json.loads(res.stdout)
+            if "errors" in data:
+                raise RuntimeError(f"GraphQL returned errors via gh CLI: {data['errors']}")
+            return data["data"]["user"]["contributionsCollection"]["contributionCalendar"]
+        except FileNotFoundError:
+            raise RuntimeError("GitHub CLI ('gh') not found on PATH. Install 'gh' or set GITHUB_TOKEN.")
+        except subprocess.CalledProcessError as exc:
+            err_msg = exc.stderr.strip() if exc.stderr else str(exc)
+            raise RuntimeError(f"gh CLI command failed: {err_msg}") from exc
 
 def get_color(count: int) -> str:
     """Return hex fill color corresponding to daily contribution count."""
