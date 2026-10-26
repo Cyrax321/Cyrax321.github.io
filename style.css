@@ -295,6 +295,7 @@ details summary {
     color: var(--fg);
     user-select: none;
     font-size: 0.95rem;
+    transition: color 0.15s ease;
 }
 
 details summary:hover {
