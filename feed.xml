@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Anandhu P Shaji &mdash; Publications and Technical Essays</title>
+    <title>Anandhu P Shaji &#8212; Publications and Technical Essays</title>
     <link>https://anandhupshaji.me/</link>
     <description>Technical essays, research preprints, and open-source systems updates by Anandhu P Shaji.</description>
     <language>en-us</language>
@@ -9,27 +9,27 @@
     <atom:link href="https://anandhupshaji.me/feed.xml" rel="self" type="application/rss+xml"/>
 
     <item>
-      <title>Hunting Compiler Bugs and Numerical Traps in TensorFlow: Inside Grappler, XLA, and Core Math</title>
-      <link>https://anandhupshaji.me/posts/tensorflow-stories.html</link>
-      <guid>https://anandhupshaji.me/posts/tensorflow-stories.html</guid>
-      <pubDate>Thu, 12 Mar 2026 00:00:00 +0000</pubDate>
-      <description>Inside 24 pull requests to TensorFlow: root-causing unsound algebraic rewrites in Grappler, shape lowering segfaults in XLA, and numerical gradient explosions in automatic differentiation.</description>
+      <title>Why Replay Isn't Enough: Fault-Tolerant State for Autonomous AI Agents</title>
+      <link>https://anandhupshaji.me/posts/fault-tolerant-ai-agents.html</link>
+      <guid>https://anandhupshaji.me/posts/fault-tolerant-ai-agents.html</guid>
+      <pubDate>Fri, 14 Aug 2026 00:00:00 +0000</pubDate>
+      <description>Architectural foundations for long-running AI agent reliability: semantic checkpoints, idempotent action ledgers, and hash-chained audit trails.</description>
     </item>
 
     <item>
       <title>Positional Prüfer Sequences for Ordered Trees</title>
-      <link>https://anandhupshaji.me/research.html#prufer</link>
-      <guid>https://anandhupshaji.me/research.html#prufer</guid>
+      <link>https://anandhupshaji.me/posts/positional-prufer-sequences.html</link>
+      <guid>https://anandhupshaji.me/posts/positional-prufer-sequences.html</guid>
       <pubDate>Sat, 20 Jun 2026 00:00:00 +0000</pubDate>
       <description>A length-(n-1) bijective integer encoding for ordered rooted labeled trees with O(n) encoding and decoding, plus an O(1) query Navigation Index.</description>
     </item>
 
     <item>
-      <title>Why Replay Isn't Enough: Fault-Tolerant State for Autonomous AI Agents</title>
-      <link>https://anandhupshaji.me/code.html#continuum</link>
-      <guid>https://anandhupshaji.me/code.html#continuum</guid>
-      <pubDate>Fri, 14 Aug 2026 00:00:00 +0000</pubDate>
-      <description>Architectural foundations for long-running AI agent reliability: semantic checkpoints, idempotent action ledgers, and hash-chained audit trails.</description>
+      <title>Hunting Compiler Bugs and Numerical Traps in TensorFlow: Inside Grappler, XLA, and Core Math</title>
+      <link>https://anandhupshaji.me/posts/tensorflow-stories.html</link>
+      <guid>https://anandhupshaji.me/posts/tensorflow-stories.html</guid>
+      <pubDate>Thu, 12 Mar 2026 00:00:00 +0000</pubDate>
+      <description>Inside 24 pull requests to TensorFlow: root-causing unsound algebraic rewrites in Grappler, shape lowering segfaults in XLA, and numerical gradient explosions in automatic differentiation.</description>
     </item>
 
     <item>

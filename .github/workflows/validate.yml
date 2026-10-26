@@ -1,0 +1,33 @@
+name: Quality & Validation Checks
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run unit tests
+        run: |
+          python -m unittest discover -s tests -v
+
+      - name: Verify sync_github CLI
+        run: |
+          python sync_github.py --help
+
+      - name: Validate XML sitemap and RSS feed syntax
+        run: |
+          python -c "import xml.etree.ElementTree as ET; ET.parse('sitemap.xml'); ET.parse('feed.xml'); print('XML files are well-formed.')"
