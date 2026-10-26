@@ -1,5 +1,9 @@
 # Anandhu P Shaji &mdash; Academic Portfolio
 
+[![Validation Checks](https://github.com/Cyrax321/portfolio/actions/workflows/validate.yml/badge.svg)](https://github.com/Cyrax321/portfolio/actions/workflows/validate.yml)
+[![Sync Activity](https://github.com/Cyrax321/portfolio/actions/workflows/update-github.yml/badge.svg)](https://github.com/Cyrax321/portfolio/actions/workflows/update-github.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 Personal academic and engineering portfolio of [Anandhu P Shaji](https://anandhupshaji.me), undergraduate researcher at GEC Idukki and final-year Computer Science student at College of Engineering Munnar.
 
 Live URL: **[anandhupshaji.me](https://anandhupshaji.me)**
