@@ -10,6 +10,7 @@ import os
 import subprocess
 import urllib.request
 from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 USERNAME = "Cyrax321"
 GRAPHQL_QUERY = """
@@ -31,13 +32,17 @@ query($username: String!) {
 }
 """
 
-def fetch_contributions_data():
-    token = os.environ.get("GITHUB_TOKEN")
+def fetch_contributions_data(username: str = USERNAME, token: Optional[str] = None) -> Dict[str, Any]:
+    """Fetch GitHub contribution calendar data using GraphQL API.
+    
+    Uses GITHUB_TOKEN if available; otherwise falls back to local gh CLI.
+    """
+    token = token or os.environ.get("GITHUB_TOKEN")
     if token:
         # Running in GitHub Actions or with GITHUB_TOKEN
         req = urllib.request.Request(
             "https://api.github.com/graphql",
-            data=json.dumps({"query": GRAPHQL_QUERY, "variables": {"username": USERNAME}}).encode("utf-8"),
+            data=json.dumps({"query": GRAPHQL_QUERY, "variables": {"username": username}}).encode("utf-8"),
             headers={"Authorization": f"Bearer {token}", "User-Agent": "Portfolio-Sync"}
         )
         with urllib.request.urlopen(req) as resp:
@@ -47,14 +52,15 @@ def fetch_contributions_data():
         # Running locally with gh CLI
         cmd = [
             "gh", "api", "graphql",
-            "-F", f"username={USERNAME}",
+            "-F", f"username={username}",
             "-f", f"query={GRAPHQL_QUERY}"
         ]
         res = subprocess.run(cmd, capture_output=True, text=True, check=True)
         data = json.loads(res.stdout)
         return data["data"]["user"]["contributionsCollection"]["contributionCalendar"]
 
-def get_color(count):
+def get_color(count: int) -> str:
+    """Return hex fill color corresponding to daily contribution count."""
     if count == 0:
         return "#eff1f5"  # parsiad --code-bg neutral
     elif count < 10:
@@ -66,9 +72,10 @@ def get_color(count):
     else:
         return "#216e39"  # intense green
 
-def generate_svg(calendar):
-    total = calendar["totalContributions"]
-    weeks = calendar["weeks"]
+def generate_svg(calendar: Dict[str, Any]) -> str:
+    """Generate SVG document representing contribution activity heatmap."""
+    total: int = calendar["totalContributions"]
+    weeks: List[Dict[str, Any]] = calendar["weeks"]
     
     # SVG Dimensions
     box_size = 10
