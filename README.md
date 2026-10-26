@@ -31,15 +31,22 @@ A lightweight, typography-first academic website built with pure HTML5 and vanil
 ├── blog.html                   # Index of technical essays and research writeups
 ├── style.css                   # Core typography, responsive layout, and design system
 ├── CNAME                       # Custom domain routing (anandhupshaji.me)
+├── robots.txt                  # Search crawler indexing rules
+├── sitemap.xml                 # Search engine XML sitemap
+├── feed.xml                    # RSS 2.0 syndication feed for publications and essays
 ├── sync_github.py              # Automated script fetching GitHub GraphQL activity to SVG
 ├── assets/
+│   ├── favicon.svg             # Monogram vector favicon
 │   ├── photo.jpg               # Profile avatar
 │   └── github_contributions.svg# Generated GitHub annual activity heatmap
 ├── posts/
-│   └── tensorflow-stories.html # Technical breakdown of 24 TensorFlow pull requests
+│   ├── tensorflow-stories.html # Technical breakdown of 24 TensorFlow pull requests
+│   ├── fault-tolerant-ai-agents.html # Deep-dive on semantic checkpoints and ledgers
+│   └── positional-prufer-sequences.html # Research writeup on O(n) ordered tree encoding
 └── .github/
     └── workflows/
-        └── update-github.yml   # Daily cron job updating contribution graph
+        ├── update-github.yml   # Daily cron job updating contribution graph
+        └── validate.yml        # CI test suite and syntax validation
 ```
 
 ---
