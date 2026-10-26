@@ -24,6 +24,10 @@ jobs:
         run: |
           python -m unittest discover -s tests -v
 
+      - name: Validate internal links and asset integrity
+        run: |
+          python -m unittest tests/test_links.py -v
+
       - name: Verify sync_github CLI
         run: |
           python sync_github.py --help
