@@ -80,6 +80,13 @@ npx serve .
 
 Open `http://localhost:8000` in your browser.
 
+### Running tests
+Verify unit tests and XML schema integrity locally:
+```bash
+python3 -m unittest discover -s tests -v
+python3 -c "import xml.etree.ElementTree as ET; ET.parse('sitemap.xml'); ET.parse('feed.xml'); print('XML valid.')"
+```
+
 ---
 
 ## Contact
