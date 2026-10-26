@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you reference this portfolio or research manuscripts, please cite as below."
+authors:
+  - family-names: "Shaji"
+    given-names: "Anandhu P"
+    orcid: ""
+title: "Anandhu P Shaji — Academic Portfolio and Open-Source Systems"
+version: 1.1.0
+date-released: 2026-10-26
+url: "https://anandhupshaji.me"
+repository-code: "https://github.com/Cyrax321/portfolio"
+keywords:
+  - "computer-vision"
+  - "deep-learning"
+  - "ai-agents"
+  - "medical-imaging"
+  - "discrete-mathematics"
+license: MIT
