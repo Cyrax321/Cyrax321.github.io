@@ -159,6 +159,14 @@ td {
     vertical-align: top;
 }
 
+th {
+    font-weight: 600;
+}
+
+td {
+    font-variant-numeric: tabular-nums;
+}
+
 thead,
 tr:not(:last-child) {
     border-bottom: 1px solid var(--rule);
