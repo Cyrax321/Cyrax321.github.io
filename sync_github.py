@@ -156,18 +156,33 @@ def generate_svg(calendar: Dict[str, Any]) -> str:
     svg.append('</svg>')
     return "\n".join(svg)
 
-def main():
-    print(f"Fetching GitHub contribution calendar for @{USERNAME}...")
-    calendar = fetch_contributions_data()
+def main() -> None:
+    """CLI entry point for syncing GitHub contributions."""
+    import argparse
+    parser = argparse.ArgumentParser(description="Fetch and render GitHub contribution graph to SVG.")
+    parser.add_argument("--username", "-u", default=USERNAME, help=f"GitHub username (default: {USERNAME})")
+    parser.add_argument("--output", "-o", default="assets/github_contributions.svg", help="Output path for SVG file")
+    parser.add_argument("--token", "-t", default=None, help="GitHub Personal Access Token (defaults to GITHUB_TOKEN env var)")
+    parser.add_argument("--dry-run", action="store_true", help="Fetch and render without writing to file")
+    args = parser.parse_args()
+
+    print(f"Fetching GitHub contribution calendar for @{args.username}...")
+    calendar = fetch_contributions_data(username=args.username, token=args.token)
     total = calendar["totalContributions"]
     print(f"Successfully fetched {total:,} contributions.")
     
     svg_content = generate_svg(calendar)
-    os.makedirs("assets", exist_ok=True)
-    svg_path = "assets/github_contributions.svg"
-    with open(svg_path, "w", encoding="utf-8") as f:
+    
+    if args.dry_run:
+        print(f"Dry run complete. SVG size: {len(svg_content)} bytes (not written).")
+        return
+
+    output_dir = os.path.dirname(args.output)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+    with open(args.output, "w", encoding="utf-8") as f:
         f.write(svg_content)
-    print(f"Generated {svg_path}")
+    print(f"Generated {args.output}")
 
 if __name__ == "__main__":
     main()
