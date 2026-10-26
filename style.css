@@ -17,6 +17,11 @@
     box-sizing: border-box;
 }
 
+::selection {
+    background: #d0e1fd;
+    color: #1a1a1a;
+}
+
 html {
     font-size: 18px;
     overflow-x: hidden;
