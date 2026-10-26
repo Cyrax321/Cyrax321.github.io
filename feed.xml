@@ -34,8 +34,8 @@
 
     <item>
       <title>Lightweight Medical Imaging: Lessons from HI-MobileNet</title>
-      <link>https://anandhupshaji.me/research.html#himobilenet</link>
-      <guid>https://anandhupshaji.me/research.html#himobilenet</guid>
+      <link>https://anandhupshaji.me/posts/lightweight-medical-imaging.html</link>
+      <guid>https://anandhupshaji.me/posts/lightweight-medical-imaging.html</guid>
       <pubDate>Wed, 28 Jan 2026 00:00:00 +0000</pubDate>
       <description>Transfer learning and efficient architectures for rare dermatological disease diagnosis on edge devices, achieving 99.96% accuracy.</description>
     </item>
