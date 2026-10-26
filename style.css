@@ -11,6 +11,27 @@
     --rule: #ddd;
 }
 
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #16181d;
+        --code-bg: #22262e;
+        --fg: #e2e4e9;
+        --hover: #8cb4e6;
+        --link: #6ca0dc;
+        --muted: #9aa0a6;
+        --rule: #2e333d;
+    }
+
+    pre {
+        background: #1f2228;
+    }
+
+    ::selection {
+        background: #2a3c54;
+        color: #fff;
+    }
+}
+
 *,
 *::before,
 *::after {
