@@ -486,3 +486,56 @@ details[open] summary {
         scroll-behavior: auto !important;
     }
 }
+
+@media print {
+    body {
+        background: #fff;
+        color: #000;
+        font-size: 11pt;
+        line-height: 1.4;
+        max-width: 100%;
+        padding: 0;
+    }
+
+    nav,
+    .activity-chart {
+        display: none !important;
+    }
+
+    #content {
+        max-width: 100%;
+        margin: 0;
+    }
+
+    h1 {
+        font-size: 18pt;
+        margin-top: 0;
+    }
+
+    h2 {
+        font-size: 13pt;
+        border-bottom: 1px solid #999;
+        break-after: avoid;
+    }
+
+    tr,
+    li {
+        break-inside: avoid;
+    }
+
+    #avatar {
+        width: 100px;
+        height: 100px;
+        box-shadow: none;
+    }
+
+    a {
+        color: #000;
+        text-decoration: underline;
+    }
+
+    footer {
+        border-top: 1px solid #ccc;
+        margin-top: 1.5rem;
+    }
+}
