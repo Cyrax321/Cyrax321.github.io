@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Lightweight Medical Imaging: Lessons from HI-MobileNet - Anandhu P Shaji</title>
+  <meta name="description" content="Lessons from deploying lightweight deep learning for automated rare dermatological diagnosis on low-power edge hardware.">
+  <meta name="author" content="Anandhu P Shaji">
+  <link rel="canonical" href="https://anandhupshaji.me/posts/lightweight-medical-imaging.html">
+  <meta property="og:title" content="Lightweight Medical Imaging: Lessons from HI-MobileNet">
+  <meta property="og:description" content="Deploying lightweight neural networks for automated diagnosis of rare skin conditions on edge hardware.">
+  <meta property="og:url" content="https://anandhupshaji.me/posts/lightweight-medical-imaging.html">
+  <meta property="og:type" content="article">
+  <meta property="article:published_time" content="2026-01-28">
+  <meta property="article:author" content="Anandhu P Shaji">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Lightweight Medical Imaging: Lessons from HI-MobileNet">
+  <meta name="twitter:description" content="Deploying lightweight neural networks for automated diagnosis of rare skin conditions on edge hardware.">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="alternate" type="application/rss+xml" title="Anandhu P Shaji &mdash; RSS Feed" href="../feed.xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Source+Code+Pro:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+  <a href="#content" class="skip-to-content">Skip to content</a>
+  <h1>Anandhu P Shaji</h1>
+  <nav aria-label="Primary">
+    <ul>
+      <li><a href="../index.html">About</a></li>
+      <li><a href="../research.html">Publications</a></li>
+      <li><a href="../code.html">Code</a></li>
+      <li><a href="../activities.html">Activities</a></li>
+      <li><a class="active" href="../blog.html">Blog</a></li>
+    </ul>
+  </nav>
+
+  <main id="content">
+    <h1 class="title">Lightweight Medical Imaging: Lessons from HI-MobileNet</h1>
+    <p style="margin-top: -0.5rem; color: var(--muted); font-size: 0.95rem;">
+      <time datetime="2026-01-28">January 28, 2026</time> &middot; Anandhu P Shaji &middot; <a href="../research.html#himobilenet">IEEE RAICS 2026 Paper</a>
+    </p>
+
+    <p>
+      In medical machine learning, papers routinely claim state-of-the-art accuracy by scaling to multi-billion-parameter Vision Transformers (ViTs) and ensemble backbones. In academic benchmarks with unmetered cluster GPUs, this works. In community health clinics across rural and underserved regions, the reality is stark: <strong>no reliable internet access, intermittent grid power, and zero access to datacenter accelerators</strong>.
+    </p>
+
+    <p>
+      In our paper presented at the <em>7th IEEE International Conference on Recent Advances in Intelligent Computational Systems (RAICS 2026)</em>, Prof. Rajeev Rajan and I investigated a practical engineering question: can an edge-optimized neural network with under 4 million parameters match heavyweight baselines for rare dermatological diagnosis?
+    </p>
+
+    <h2>The Clinical Context: Harlequin Ichthyosis</h2>
+    <p>
+      Harlequin Ichthyosis is an extraordinarily severe congenital skin disorder caused by mutations in the <code>ABCA12</code> gene. Early clinical recognition is essential for neonatal survival, yet primary physicians in rural clinics often lack specialized dermatological training. Automated diagnostic assistance must operate directly on low-power handhelds and embedded diagnostic probes without round-trip cloud latency.
+    </p>
+
+    <h2>Architectural Design: HI-MobileNet</h2>
+    <p>
+      We evaluated multiple convolutional backbones and identified MobileNetV2 with inverted residual bottlenecks and depthwise separable convolutions as the optimal Pareto boundary between compute and feature discrimination:
+    </p>
+    <ul>
+      <li><strong>Depthwise Separable Convolutions:</strong> Factorizes standard spatial convolution into lightweight depthwise spatial filtering followed by $1 \times 1$ pointwise projection, reducing FLOPs by 8.5&times;.</li>
+      <li><strong>Inverted Residual Bottlenecks:</strong> Maintains thin bottleneck interfaces while expanding to higher-dimensional manifolds internally, preventing non-linear ReLU layers from destroying subtle epidermal texture information.</li>
+      <li><strong>Targeted Transfer Learning:</strong> Pre-trained ImageNet feature extractors fine-tuned with progressive unfreezing and discriminative learning rates.</li>
+    </ul>
+
+    <h2>Empirical Results</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Model</th>
+          <th>Parameters</th>
+          <th>Accuracy</th>
+          <th>Inference (CPU Edge)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>ResNet-50</td>
+          <td>25.6 M</td>
+          <td>98.84%</td>
+          <td>112 ms</td>
+        </tr>
+        <tr>
+          <td>DenseNet-121</td>
+          <td>8.0 M</td>
+          <td>99.12%</td>
+          <td>74 ms</td>
+        </tr>
+        <tr>
+          <td>BiomedCLIP</td>
+          <td>21.1 M</td>
+          <td>96.50%</td>
+          <td>185 ms</td>
+        </tr>
+        <tr>
+          <td><strong>HI-MobileNet (Ours)</strong></td>
+          <td><strong>3.4 M</strong></td>
+          <td><strong>99.96%</strong></td>
+          <td><strong>14.2 ms</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Key Takeaways for Practitioners</h2>
+    <ol>
+      <li><strong>Domain-specific data curation beats parameter count:</strong> Rigorous preprocessing and artifact cleanup yielded far larger performance gains than increasing model depth.</li>
+      <li><strong>Inverted residuals preserve granular medical textures:</strong> High-frequency diagnostic cues (keratin fissures, scale boundaries) are easily blurred by aggressive spatial pooling.</li>
+      <li><strong>Edge feasibility is achievable:</strong> Modern low-power architectures can deliver institutional-grade diagnostic assistance at a fraction of the hardware cost.</li>
+    </ol>
+
+    <p style="margin-top: 2rem;">
+      <a href="../blog.html">&larr; Back to all blog posts</a>
+    </p>
+  </main>
+
+  <footer>
+    <a href="../feed.xml">RSS Feed</a> &middot; &copy; 2026 Anandhu P Shaji
+  </footer>
+</body>
+</html>
