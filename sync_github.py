@@ -161,8 +161,7 @@ def generate_svg(calendar: Dict[str, Any]) -> str:
     # Footer stats and legend
     footer_y = top_padding + (7 * row_height) + 18
     formatted_total = f"{total:,}"
-    restricted = calendar.get("restrictedContributionsCount", 0)
-    stat_text = f"{formatted_total} contributions in the last year (public and private)" if restricted else f"{formatted_total} contributions in the last year"
+    stat_text = f"{formatted_total} contributions in the last year"
     svg.append(f'  <text x="{left_padding}" y="{footer_y}" class="stat-label">{stat_text}</text>')
     
     # Legend on right
