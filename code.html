@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Code - Anandhu P Shaji</title>
-  <meta name="description" content="Open-source systems, AI reliability tools (CONTINUUM, SNAGLINE), and 24 pull requests to TensorFlow by Anandhu P Shaji.">
+  <meta name="description" content="Open-source systems, sovereign AI tools (CONTINUUM, SNAGLINE, snapjudge, QwerySmith, maya), and 24 pull requests to TensorFlow by Anandhu P Shaji.">
   <meta name="author" content="Anandhu P Shaji">
   <link rel="canonical" href="https://anandhupshaji.me/code.html">
   <meta property="og:title" content="Code &amp; Open Source - Anandhu P Shaji">
@@ -34,7 +34,7 @@
           "name": "CONTINUUM",
           "codeRepository": "https://github.com/Cyrax321/CONTINUUM",
           "programmingLanguage": "Python",
-          "description": "Reliability and execution recovery layer for long-running AI agents."
+          "description": "Reliability infrastructure for verifiable semantic recovery of long-running autonomous AI agents."
         }
       },
       {
@@ -43,9 +43,31 @@
         "item": {
           "@type": "SoftwareSourceCode",
           "name": "SNAGLINE",
-          "codeRepository": "https://github.com/Cyrax321",
+          "codeRepository": "https://github.com/Cyrax321/SNAGLINE",
           "programmingLanguage": "Python",
-          "description": "Real-time zero-dependency failure detection for autonomous AI agents."
+          "description": "Zero-dependency microsecond-scale real-time failure detection for autonomous AI agents."
+        }
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "item": {
+          "@type": "SoftwareSourceCode",
+          "name": "snapjudge",
+          "codeRepository": "https://github.com/Cyrax321/snapjudge",
+          "programmingLanguage": "C++",
+          "description": "Fast, non-autoregressive System-1 decision engine in pure C++17."
+        }
+      },
+      {
+        "@type": "ListItem",
+        "position": 4,
+        "item": {
+          "@type": "SoftwareSourceCode",
+          "name": "QwerySmith",
+          "codeRepository": "https://github.com/Cyrax321/QwerySmith-1.0",
+          "programmingLanguage": "Python",
+          "description": "Production Text-to-SQL research pipeline and self-healing autonomous database agent."
         }
       }
     ]
@@ -80,31 +102,71 @@
         <tr id="continuum">
           <td>
             <strong><a rel="external" href="https://github.com/Cyrax321/CONTINUUM">CONTINUUM</a></strong><br>
-            <small style="color: var(--muted);">Python, MCP, PostgreSQL</small>
+            <small style="color: var(--muted);">Python, MCP, PostgreSQL, Docker</small>
           </td>
           <td>
-            Reliability infrastructure for long-running AI agents. Model- and framework-agnostic layer with semantic checkpoints, an idempotent action ledger, and a hash-chained event log. Over 2,800 tests; 0 duplicate side effects in hard-crash benchmark replays. Community project with 45+ contributors.
-            [<a rel="external" href="https://github.com/Cyrax321/CONTINUUM">GitHub</a> / <a href="posts/fault-tolerant-ai-agents.html">Technical Story</a>]
+            Production-grade infrastructure for verifiable semantic recovery of long-running autonomous AI agents. Replaces naive replay and token-burning hallucinated recovery with tamper-evident SHA-256 event logs, an idempotent action ledger preventing duplicate side effects, semantic checkpoints, and a deny-by-default 13-tool MCP server. 4,230+ tests, 58 contributors, 14 Phase 6 recovery scenarios.
+            [<a rel="external" href="https://github.com/Cyrax321/CONTINUUM">GitHub</a> / <a rel="external" href="https://continuum-nu-six.vercel.app">Live Demo</a> / <a rel="external" href="https://pypi.org/project/continuum-agent/">PyPI</a> / <a rel="external" href="https://github.com/Cyrax321/CONTINUUM/pkgs/container/continuum">Docker</a> / <a href="posts/fault-tolerant-ai-agents.html">Technical Story</a>]
           </td>
         </tr>
         <tr id="snagline">
           <td>
-            <strong><a rel="external" href="https://github.com/Cyrax321">SNAGLINE</a></strong><br>
-            <small style="color: var(--muted);">Python, LangGraph, HTTP</small>
+            <strong><a rel="external" href="https://github.com/Cyrax321/SNAGLINE">SNAGLINE</a></strong><br>
+            <small style="color: var(--muted);">Python, Zero-Dependency, HTTP</small>
           </td>
           <td>
-            Real-time zero-dependency failure detection for AI agents, targeting loops, cascades, latency drift, token runaway, and stagnation. Median overhead of ~1.5 &micro;s/step with 0 false alarms on 41 healthy control runs.
-            [<a rel="external" href="https://github.com/Cyrax321">GitHub</a>]
+            Zero-dependency, microsecond-scale real-time failure detection and guardrails for LLM agents. Catches infinite loops, tool thrashing, statistical latency drift, and reasoning collapse in real time with 1.70 - 2.43 &micro;s median latency and zero LLM-as-a-judge overhead. 11 contributors, 13 stars.
+            [<a rel="external" href="https://github.com/Cyrax321/SNAGLINE">GitHub</a> / <a rel="external" href="https://cyrax321.github.io/SNAGLINE/">Documentation</a> / <a rel="external" href="https://pypi.org/project/snagline/">PyPI</a>]
+          </td>
+        </tr>
+        <tr id="snapjudge">
+          <td>
+            <strong><a rel="external" href="https://github.com/Cyrax321/snapjudge">snapjudge</a></strong><br>
+            <small style="color: var(--muted);">C++17, Zero-GPU, System-1</small>
+          </td>
+          <td>
+            Fast, non-autoregressive System-1 decision engine in pure C++17. Evaluates typed questions (choice, score, noun) with calibrated probabilities in a single forward pass, delivering sub-millisecond execution with zero GPU dependencies.
+            [<a rel="external" href="https://github.com/Cyrax321/snapjudge">GitHub</a>]
           </td>
         </tr>
         <tr id="qwerysmith">
           <td>
-            <strong><a rel="external" href="https://huggingface.co/Cyrax321">QwerySmith</a></strong><br>
-            <small style="color: var(--muted);">PyTorch, QLoRA, GGUF</small>
+            <strong><a rel="external" href="https://github.com/Cyrax321/QwerySmith-1.0">QwerySmith</a></strong><br>
+            <small style="color: var(--muted);">PyTorch, QLoRA, GGUF, Unsloth</small>
           </td>
           <td>
-            Three fine-tuned Qwen3-4B models for text-to-SQL tasks released as adapter, merged, and GGUF weights, improving in-distribution execution accuracy from 67.2% to 88.5%.
-            [<a rel="external" href="https://huggingface.co/Cyrax321">Hugging Face</a>]
+            Production Text-to-SQL research pipeline and self-healing autonomous database agent (Qwen3-4B base + QLoRA). Solves single-source overfitting via balanced multi-source curriculum, achieving 88.5% in-distribution and 55.7% enterprise accuracy. Released with QwerySmith 2.0 multi-seed development models (Seeds 1, 2, 3), 1.1 adapters and merged weights, and offline 4-bit GGUF quantization for local private execution.
+            [<a rel="external" href="https://github.com/Cyrax321/QwerySmith-1.0">GitHub</a> / <a rel="external" href="https://drive.google.com/file/d/1sN1eVn7LpOi6cLEI1euxOT2cByBoXLlg/view?usp=sharing">Paper (PDF)</a> / <a rel="external" href="https://huggingface.co/Cyrax321">Hugging Face</a>]
+          </td>
+        </tr>
+        <tr id="maya">
+          <td>
+            <strong><a rel="external" href="https://github.com/Cyrax321/maya-healthcare-llm">maya-healthcare-llm</a></strong><br>
+            <small style="color: var(--muted);">PyTorch, Domain LLM, Healthcare</small>
+          </td>
+          <td>
+            Research-grade sovereign healthcare operations LLM. Reproducible fine-tuning and evaluation suite specializing in non-clinical hospital administration, bed occupancy forecasting, workforce rostering, and operating room logistics, engineered for strictly local on-premises hospital deployment with zero cloud data egress.
+            [<a rel="external" href="https://github.com/Cyrax321/maya-healthcare-llm">GitHub</a>]
+          </td>
+        </tr>
+        <tr id="wave-coatnet">
+          <td>
+            <strong><a rel="external" href="https://github.com/Cyrax321/wave-coAtNet">wave-coAtNet</a></strong><br>
+            <small style="color: var(--muted);">PyTorch, 2D DWT, Self-Attention</small>
+          </td>
+          <td>
+            Hybrid Wavelet-Attention deep learning architecture combining 2D Discrete Wavelet Transforms, MBConv convolution blocks, and Relative Self-Attention for rare dermatological disease diagnosis.
+            [<a rel="external" href="https://github.com/Cyrax321/wave-coAtNet">GitHub</a>]
+          </td>
+        </tr>
+        <tr id="kibo">
+          <td>
+            <strong><a rel="external" href="https://github.com/Cyrax321/kibo-v7-">kibo-v7-</a></strong><br>
+            <small style="color: var(--muted);">TypeScript, React 18, PostgreSQL</small>
+          </td>
+          <td>
+            Career orchestration platform with PostgreSQL, Supabase Realtime sub-100ms CDC, TanStack Query, and interactive analytics.
+            [<a rel="external" href="https://github.com/Cyrax321/kibo-v7-">GitHub</a>]
           </td>
         </tr>
       </tbody>
