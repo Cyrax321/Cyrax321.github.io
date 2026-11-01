@@ -27,6 +27,7 @@ query($username: String!) {
           }
         }
       }
+      restrictedContributionsCount
     }
   }
 }
@@ -50,7 +51,10 @@ def fetch_contributions_data(username: str = USERNAME, token: Optional[str] = No
                 data = json.loads(resp.read().decode("utf-8"))
                 if "errors" in data:
                     raise RuntimeError(f"GraphQL API returned errors: {data['errors']}")
-                return data["data"]["user"]["contributionsCollection"]["contributionCalendar"]
+                collection = data["data"]["user"]["contributionsCollection"]
+            cal = collection["contributionCalendar"]
+            cal["restrictedContributionsCount"] = collection.get("restrictedContributionsCount", 0)
+            return cal
         except urllib.error.HTTPError as exc:
             raise RuntimeError(f"GitHub API HTTP error ({exc.code}): {exc.reason}") from exc
         except urllib.error.URLError as exc:
@@ -67,7 +71,10 @@ def fetch_contributions_data(username: str = USERNAME, token: Optional[str] = No
             data = json.loads(res.stdout)
             if "errors" in data:
                 raise RuntimeError(f"GraphQL returned errors via gh CLI: {data['errors']}")
-            return data["data"]["user"]["contributionsCollection"]["contributionCalendar"]
+            collection = data["data"]["user"]["contributionsCollection"]
+            cal = collection["contributionCalendar"]
+            cal["restrictedContributionsCount"] = collection.get("restrictedContributionsCount", 0)
+            return cal
         except FileNotFoundError:
             raise RuntimeError("GitHub CLI ('gh') not found on PATH. Install 'gh' or set GITHUB_TOKEN.")
         except subprocess.CalledProcessError as exc:
@@ -154,7 +161,9 @@ def generate_svg(calendar: Dict[str, Any]) -> str:
     # Footer stats and legend
     footer_y = top_padding + (7 * row_height) + 18
     formatted_total = f"{total:,}"
-    svg.append(f'  <text x="{left_padding}" y="{footer_y}" class="stat-label">{formatted_total} contributions in the last year</text>')
+    restricted = calendar.get("restrictedContributionsCount", 0)
+    stat_text = f"{formatted_total} contributions in the last year (public and private)" if restricted else f"{formatted_total} contributions in the last year"
+    svg.append(f'  <text x="{left_padding}" y="{footer_y}" class="stat-label">{stat_text}</text>')
     
     # Legend on right
     legend_right_x = left_padding + (num_weeks * col_width)
